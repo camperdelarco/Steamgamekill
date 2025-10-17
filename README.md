@@ -1,6 +1,6 @@
 # SteamKill
 
-SteamKill is a Bash script designed to monitor network activity for a specified game port. If no activity is detected, it automatically terminates the game. The script also dims your screen to zero brightness while running and restores it to normal upon termination.
+SteamKill is a Bash script designed to monitor network activity for a specified game port. If no activity is detected, it automatically terminates the game. The script also dims your screen to zero brightness while running and restores it to normal upon termination **USING CTRL+C**.
 
 # Description
 
