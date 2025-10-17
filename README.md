@@ -9,7 +9,7 @@ This script is primarily intended for use with VRChat and is useful for those wh
 # Requirements
 
 - **Linux Mint 22.04** (tested)
-- **cxfe terminal**
+- **xfce terminal**
 - **xrandr** (for screen brightness control)
 - **tcpdump** (for monitoring network packets)
 - **run-wivrn script** (optional)
