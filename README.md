@@ -1,6 +1,6 @@
-# SteamKill
+# SteamGameKill
 
-SteamKill is a Bash script designed to monitor network activity for a specified game port. If no activity is detected, it automatically terminates the game. The script also dims your screen to zero brightness while running and restores it to normal upon termination **USING CTRL+C**.
+SteamGameKill is a Bash script designed to monitor network activity for a specified game port. If no activity is detected, it automatically terminates the game. The script also dims your screen to zero brightness while running and restores it to normal upon termination **USING CTRL+C**.
 
 # Description
 
@@ -25,7 +25,7 @@ This script is primarily intended for use with VRChat and is useful for those wh
 2. **Create the Script File**:
    Create a text file for the script. For example, on your Desktop:
    ```bash
-   nano ~/Desktop/steamkill
+   nano ~/Desktop/SteamGameKill
    ```
 
 3. **Copy the Script**:
@@ -34,13 +34,13 @@ This script is primarily intended for use with VRChat and is useful for those wh
 4. **Make the Script Executable**:
    Run the following command to make the script executable:
    ```bash
-   chmod +x ~/Desktop/steamkill
+   chmod +x ~/Desktop/SteamGameKill
    ```
 
 5. **Run the Script**:
    To execute the script, you can run:
    ```bash
-   /home/user/Desktop/run-wivrn && sudo /home/user/Desktop/steamkill
+   /home/user/Desktop/run-wivrn && sudo /home/user/Desktop/SteamGameKill
    ```
 
 ## Configuration
@@ -59,7 +59,7 @@ The default settings should work effectively, but you may adjust them based on y
 
 ## Acknowledgments
 
-- Thanks to **xytovl** for creating **WiVRn**, an awesome open-source project for Linux gaming.
+- Thanks to all **WiVRn** contributors for creating such an amazing linux gaming project; specially to **xytovl** for his patience and great help with the program on the Linux VR Adventures Discord server
 - Special thanks to **ChatGPT** for assisting in the creation, debugging of this script and description.
 
 ## License
