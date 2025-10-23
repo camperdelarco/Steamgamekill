@@ -1,68 +1,73 @@
-# SteamGameKill
+# SteamGameKill README
 
-SteamGameKill is a Bash script designed to monitor network activity for a specified game port. If no activity is detected, it automatically terminates the game. The script also dims your screen to zero brightness while running and restores it to normal upon termination **USING CTRL+C**.
+## Overview
 
-# Description
+**SteamGameKill** is a Bash script designed for Linux users, primarily designed for managing VRChat sessions, but it can work with any steam game. The script monitors uses DBus to listen for the WIVRn headset disconnection message before terminating the user specified game. It also dims your screen while active and restores brightness upon termination.
 
-This script is primarily intended for use with VRChat and is useful for those who want to automatically terminate the game when they disconnect from their wireless headset. It continuously checks for network activity on a specified port and reacts accordingly, allowing you to enjoy uninterrupted gameplay until you close the associated app (like WiVRn).
+## Features
 
-# Requirements
+- **Automatic Game Termination:** Monitors headset activity and terminates VRChat when the headset is disconnected.
+- **Screen Dimming:** Dims the screen to zero brightness when the script runs and restores it when stopped with `CTRL+C`.
+- **Start Avahi and WIVRn without duplicates** auto starts both processes after checking they aren't already running on your computer.
 
-- **Linux Mint 22.04** (tested)
-- **xfce terminal**
-- **xrandr** (for screen brightness control)
-- **tcpdump** (for monitoring network packets)
-- **run-wivrn script** (optional)
+## Tested Equipment
+
+- **Operating System:** Linux Mint 22.04
+- **Terminal:** XFCE Terminal (to run the script)
+- **Dependencies:**
+  - `xrandr` (for controlling screen brightness)
+  - `avahi-daemon` (for mDNS service)
+  - `flatpak` (to run WiVRn)
 
 ## Installation
 
-1. **Install Required Software**:
-   Make sure you have the necessary software installed:
+1. **Install Required Software:**
+   Open your terminal and run:
    ```bash
-   sudo apt install x11-xserver-utils tcpdump
+   sudo apt install x11-xserver-utils avahi-daemon flatpak
    ```
 
-2. **Create the Script File**:
-   Create a text file for the script. For example, on your Desktop:
+2. **Create the Script File:**
+   Create a Bash script file on your Desktop or any target folder of your choice:
    ```bash
    nano ~/Desktop/SteamGameKill
    ```
 
-3. **Copy the Script**:
+3. **Copy the Script:**
    Copy the script code into the file and save it.
 
-4. **Make the Script Executable**:
-   Run the following command to make the script executable:
+4. **Make the Script Executable:**
+   Run the following command:
    ```bash
    chmod +x ~/Desktop/SteamGameKill
    ```
 
-5. **Run the Script**:
-   To execute the script, you can run:
+5. **Run the Script:**
+   To execute the script, run:
    ```bash
-   /home/user/Desktop/run-wivrn && sudo /home/user/Desktop/SteamGameKill
+   /home/user/Desktop/SteamGameKill
    ```
 
 ## Configuration
 
-You can configure the following parameters in the script:
+You can configure the following parameters directly in the script:
 
-- `PORT`: The port to listen on (default is `9757`).
-- `INTERFACE`: The network interface to use (default is `enp1s0`).
-- `CONSECUTIVE_FAILS`: The number of consecutive counts required to terminate the game (default is `6`).
-- `COUNT_DURATION`: The duration in seconds for counting packets (default is `10`).
-- `GAME`: The name of the game to terminate conditionally (default is `VRChat`).
-- `SLEEP_DURATION`: Sleep duration between checks (default is `1` second).
-- `PACKAGES`: The number of packets to limit the specified timeframe (default is `100`).
+- **GAME:** The name of the game to terminate (default is `VRChat`).
+- **DIM_SCREEN:** Enable or disable screen dimming (default is `false`).
 
-The default settings should work effectively, but you may adjust them based on your needs.
+Other parameters can be adjusted based on your specific needs, including network interface and monitoring settings.
+
+## Usage
+
+- **Start the Script:** Launch the script as described in the installation section.
+- **Stop the Script:** Use `CTRL+C` to stop the script and restore screen brightness.
 
 ## Acknowledgments
 
-- Thanks to all **WiVRn** contributors for creating such an amazing linux gaming project; specially to **xytovl** for his patience and great help with the program on the Linux VR Adventures Discord server
-- Special thanks to **ChatGPT** for assisting in the creation, debugging of this script and description.
+- Thanks to all contributors of WiVRn for their work on Linux gaming projects.
+- Special thanks to **xytovl** for his patience and assistance on the Linux VR Adventures Discord server.
+- Thank you to the community for support and assistance during the development of this script.
 
 ## License
 
-This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for more details.
-
+This project is licensed under the MIT License. See the LICENSE file for more details.
