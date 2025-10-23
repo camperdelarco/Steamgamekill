@@ -1,17 +1,12 @@
 #!/bin/bash
+# Start dbus-monitor to listen for the specific D-Bus signal in the session bus
 
-# User-defined variables
-PORT=9757                     # Port to listen on, 9757 by default
-INTERFACE=enp1s0              # Network interface to use, wlp2s0 for wireless
-CONSECUTIVE_FAILS=6           # Required consecutive counts of 1
-COUNT_DURATION=10             # Duration in seconds for counting packets
-GAME=VRChat                   # Game name to terminate conditionally
-SLEEP_DURATION=1              # Sleep duration in seconds
-PACKAGES=100                  # Number of packages limit in specified timeframe
+GAME="VRChat"                 # Game name to terminate conditionally
 DIM_SCREEN=false              # ENABLE OR DISABLE SCREEN DIMMING, false (SCREEN DIMING OFF) BY DEFAULT [use lower case]
 
 
-# Function to handle SIGINT signal
+
+# Start of screen dimming subprocess
 cleanup() {
     xrandr --output "$(xrandr | grep " connected" | cut -f1 -d " ")" --brightness 1  # Set brightness back to normal
     exit
@@ -23,33 +18,32 @@ trap cleanup SIGINT
 # Dim the screen initially
 if [ "$DIM_SCREEN" = true ]; then
     xrandr --output "$(xrandr | grep " connected" | cut -f1 -d " ")" --brightness 0
-fi
+fi #end of screen dimming subprocess
 
-# Main loop
-while true; do
-    count=0                    # Initialize counter for each cycle
 
-    while true; do
-        current_count=$(sudo timeout $COUNT_DURATION tcpdump -i $INTERFACE -n -tttt port $PORT -c $PACKAGES 2>/dev/null | wc -l)
-        
-        if [[ "$current_count" -eq 1 ]]; then
-            count=$((count + 1))   # Increment counter
-            echo "Counter: $count"  # Debug message
-            if [[ "$count" -eq $CONSECUTIVE_FAILS ]]; then
-                pids=$(pgrep -f "$GAME")  # Get PIDs of the game
-                if [[ -n "$pids" ]]; then
-                    echo "Terminating process(es) with PID(s): $pids"  # Debug message
-                    kill $pids 2>/dev/null || kill -9 $pids 2>/dev/null  # Terminate the processes
-                fi
-                break  # Exit inner loop after termination
-            fi
-        else
-            count=0  # Reset counter if condition is not met
-        fi
-        
-        sleep $SLEEP_DURATION  # Delay before next check
+
+# Game killing process based on headset activity monitoring using DBus
+dbus-monitor --session "type='signal',interface='org.freedesktop.DBus.Properties',member='PropertiesChanged'" |
+while read -r line; do
+  # Check if the line contains the target string
+  if echo "$line" | grep -q 'io.github.wivrn.Server'; then
+    # Read the next lines to find the conditions
+    for i in {1..7}; do
+      read -r next_line
+      if [ "$i" -eq 4 ]; then
+        line4="$next_line"
+      elif [ "$i" -eq 5 ]; then
+        line5="$next_line"
+      fi
     done
-
-    echo "Monitoring restarted..."  # Indicate restart of monitoring
-    sleep $SLEEP_DURATION  # Optional delay before next outer loop iteration
+    
+    # Check conditions for 4th and 5th lines of wivrn exit message
+    if [[ "$line4" == *"string \"HeadsetConnected\""* ]] && [[ "$line5" == *"variant             boolean false"* ]]; then
+      pids=$(pgrep -f "$GAME")  # Get PIDs of the game
+      if [[ -n "$pids" ]]; then
+        echo "Terminating process(es) with PID(s): $pids"  # Debug message
+        kill $pids 2>/dev/null || { kill -9 $pids 2>/dev/null; echo "Forced termination"; }
+      fi   
+    fi
+  fi
 done
