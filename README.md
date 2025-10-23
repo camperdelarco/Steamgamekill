@@ -66,7 +66,7 @@ Other parameters can be adjusted based on your specific needs, including network
 
 - Thanks to all contributors of WiVRn for their work on Linux gaming projects.
 - Special thanks to **xytovl** for his patience and assistance on the Linux VR Adventures Discord server.
-- Thank you to the community for support and assistance during the development of this script.
+- Thanks to ChatGPT for the help in writing this script and the README
 
 ## License
 
