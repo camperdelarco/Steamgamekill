@@ -1,49 +1,71 @@
-#!/bin/bash
-# Start dbus-monitor to listen for the specific D-Bus signal in the session bus
+#!/usr/bin/env bash
 
+# GLOBAL VARIABLES
 GAME="VRChat"                 # Game name to terminate conditionally
-DIM_SCREEN=false              # ENABLE OR DISABLE SCREEN DIMMING, false (SCREEN DIMING OFF) BY DEFAULT [use lower case]
+DIM_SCREEN=false              # ENABLE OR DISABLE SCREEN DIMMING, false (SCREEN DIMMING OFF) BY DEFAULT [use lower case]
 
+#Start of avahi and wivrn starting subprocesses
+set -euo pipefail
 
+# Ensure avahi-daemon is running/enabled
+systemctl is-active --quiet avahi-daemon || { 
+    systemctl enable --now avahi-daemon; 
+}
+
+# Check for WiVRn running (case-insensitive search for "wivrn" and "dashboard")
+# Start if not present
+ps aux | grep -i wivrn | grep -i dashboard >/dev/null 2>&1 || 
+nohup flatpak run io.github.wivrn.wivrn >/dev/null 2>&1 & # End of avahi and wivrn starting subprocesses
 
 # Start of screen dimming subprocess
 cleanup() {
-    xrandr --output "$(xrandr | grep " connected" | cut -f1 -d " ")" --brightness 1  # Set brightness back to normal
+    # Set brightness back to normal
+    xrandr --output "$(xrandr | grep " connected" | cut -f1 -d " ")" --brightness 1
     exit
 }
 
 # Trap SIGINT and call cleanup
 trap cleanup SIGINT
 
-# Dim the screen initially
+# Dim the screen initially if enabled
 if [ "$DIM_SCREEN" = true ]; then
     xrandr --output "$(xrandr | grep " connected" | cut -f1 -d " ")" --brightness 0
-fi #end of screen dimming subprocess
+fi # End of screen dimming subprocess
 
-
-
-# Game killing process based on headset activity monitoring using DBus
+# Game killing subprocess based on headset activity monitoring using DBus
 dbus-monitor --session "type='signal',interface='org.freedesktop.DBus.Properties',member='PropertiesChanged'" |
+
 while read -r line; do
-  # Check if the line contains the target string
-  if echo "$line" | grep -q 'io.github.wivrn.Server'; then
-    # Read the next lines to find the conditions
-    for i in {1..7}; do
-      read -r next_line
-      if [ "$i" -eq 4 ]; then
-        line4="$next_line"
-      elif [ "$i" -eq 5 ]; then
-        line5="$next_line"
-      fi
-    done
-    
-    # Check conditions for 4th and 5th lines of wivrn exit message
-    if [[ "$line4" == *"string \"HeadsetConnected\""* ]] && [[ "$line5" == *"variant             boolean false"* ]]; then
-      pids=$(pgrep -f "$GAME")  # Get PIDs of the game
-      if [[ -n "$pids" ]]; then
-        echo "Terminating process(es) with PID(s): $pids"  # Debug message
-        kill $pids 2>/dev/null || { kill -9 $pids 2>/dev/null; echo "Forced termination"; }
-      fi   
+    # Check if the line contains the target string
+    if echo "$line" | grep -q 'io.github.wivrn.Server'; then
+        
+        # Read the next lines to find the conditions
+        for i in {1..7}; do
+            read -r next_line
+            
+            if [ "$i" -eq 4 ]; then
+                line4="$next_line"
+            elif [ "$i" -eq 5 ]; then
+                line5="$next_line"
+            fi
+        done
+        
+        # Confirm wivrn exit DBus message by checking the 4th and 5th line substrings
+        if [[ "$line4" == *"string \"HeadsetConnected\""* ]] && [[ "$line5" == *"variant             boolean false"* ]]; then
+            
+            # Get PIDs of the game
+            pids=$(pgrep -f "$GAME")  
+            
+            if [[ -n "$pids" ]]; then
+                echo "Terminating process(es) with PID(s): $pids"  # Debug message
+                kill $pids 2>/dev/null || { 
+                    kill -9 $pids 2>/dev/null; 
+                    echo "Forced termination"; 
+                }
+            fi
+            
+            # Uncommenting this break would terminate the monitoring loop upon successfully finding the exit message.
+            # break    
+        fi
     fi
-  fi
 done
