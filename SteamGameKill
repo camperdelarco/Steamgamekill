@@ -40,18 +40,18 @@ while read -r line; do
     if echo "$line" | grep -q 'io.github.wivrn.Server'; then
         
         # Read the next lines to find the conditions
-        for i in {1..7}; do
+        for i in {1..9}; do
             read -r next_line
             
-            if [ "$i" -eq 4 ]; then
-                line4="$next_line"
-            elif [ "$i" -eq 5 ]; then
-                line5="$next_line"
+            if [ "$i" -eq 8 ]; then
+                line8="$next_line"
+            elif [ "$i" -eq 9 ]; then
+                line9="$next_line"
             fi
         done
         
-        # Confirm wivrn exit DBus message by checking the 4th and 5th line substrings
-        if [[ "$line4" == *"string \"HeadsetConnected\""* ]] && [[ "$line5" == *"variant             boolean false"* ]]; then
+        # Confirm wivrn exit DBus message by checking the 8th and 9th line substrings ##### CAUTION: IN FUTURE WIVRN UPDATES THIS NUMERIC ORDER OR WORDING MAY BE DIFFERENT OR DYNAMIC 
+        if [[ "$line8" == *"string \"HeadsetConnected\""* ]] && [[ "$line9" == *"variant             boolean false"* ]]; then
             
             # Get PIDs of the game
             pids=$(pgrep -f "$GAME")  
